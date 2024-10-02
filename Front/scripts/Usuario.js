@@ -155,7 +155,7 @@ let valido = ValidarForm()
         id:0,
         nome: document.getElementById("nome").value,
         cpf:document.getElementById("cpf").value.replace(/-/g,'').replace(/\./g,""),
-        rg: document.getElementById("rg").value,
+        rg: document.getElementById("rg").value.replace(/-/g,'').replace(/\./g,''),
         id_Endereco: (id) ? id : request
       }),
       headers:{
@@ -193,6 +193,9 @@ async function CriarEndereco(){
   let id = await enderecoId.json()
  
    return id['id']
+  }
+  else{
+    alert(await enderecoId.text())
   }
   
 }
@@ -306,7 +309,7 @@ async function EditarPessoa(cpfPar,idEndereco) {
         id:0,
         nome: document.querySelector("#nome").value,
         cpf: cpfPar,
-        rg: document.querySelector("#rg").value,
+        rg: document.querySelector("#rg").value.replace(/-/g,'').replace(/\./g,''),
         idEndereco: idEndereco,
       }),
       headers: {

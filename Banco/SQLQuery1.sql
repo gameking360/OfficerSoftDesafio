@@ -10,7 +10,6 @@ senha varchar(max))
 
 create table Pessoa (
 id integer primary key identity,
-id_Usuario integer,
 id_Endereco integer,
 cpf varchar (11) unique,
 nome varchar(50),
@@ -35,3 +34,4 @@ drop database OfficerSoft
 select * from Pessoa;
 
 delete from Endereco;
+delete from Pessoa;
