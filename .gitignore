@@ -1,0 +1,10 @@
+.vs/
+
+
+*.http
+
+bin/
+
+*.json
+
+obj/
