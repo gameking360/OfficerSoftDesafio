@@ -17,6 +17,7 @@ namespace OfficerBackEnd.Controllers
             _login = login;
         }
 
+        
         [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<string>> Login(LoginDTO dto)
@@ -33,6 +34,7 @@ namespace OfficerBackEnd.Controllers
             }
         }
 
+        //Recebe o token que está armazenado,e o valida.
         [AllowAnonymous]
         [HttpPost("Validar")]
         public ActionResult<bool> Validar([FromBody] string token)

@@ -1,112 +1,11 @@
 
-import { linkBase } from "./main.js"
 import { CarregarPaginaEndereco } from "./enderecoTela.js"
 import { CarregarBusca } from "./busca.js"
+import {apiRequest} from "./api.js"
 
+import {navegacaoSite,tabelaUsuario,telaCriarUsuario} from "../templates/templates.js"
 
-const navegacaoSite = `  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-<div class = "container-fluid">
-    <a class="navbar-brand">Sistema</a>
-  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    <ul class="navbar-nav me-auto">
-      <li class="nav-item">
-      <a class="nav-link" id="pessoas" href="#">Pessoas</span></a>
-      </li>
-      <li class = "nav-item">
-      <a class="nav-link" href="#" id="enderecos">Enderecos</a>
-      </li>
-      </ul>
-  </div>
-  </div>
-  </nav>
-  <div class="container">
-  <div class="row" id="pesquisa"> 
-  </div>
-  <div class="row" id="conteudo">
-  </div>`
-
-const tabelaUsuario = `
-<table class="table">
-    <thead>
-      <th scope="col">Nome</th>
-      <th scope="col">CPF</th>
-      <th scope="col">RG</th>
-      <th scope="col">CEP</th>
-    </thead>
-    <tbody id="tabelaPessoas">
-
-    </tbody>
-  </table>
-  
-`
-
-
-const telaCriarUsuario = ` 
-<div class="col">
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#criacaoUsuario" onclick='carregarModal()'>
-  Criar pessoa
-</button>
-
-</div>
-
-        <!-- Modal -->
-<div class="modal fade" id="criacaoUsuario" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Criação de usuário</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-         <form id="formulario">
-            <div class="mb-3">
-                <label for="Nome">Nome</label>
-                <input class="form-control" type="text" required name="nome" id="nome">
-            </div>
-            <div class="mb-3">
-                <label for="CPF">CPF</label>
-                <input class="form-control" type="text" required name="cpf" id="cpf" placeholder="000.000.000-00">
-            </div>
-            <div class="mb-3">
-                <label for="RG">RG</label>
-                <input class="form-control" type="text" required name="rg" id="rg">
-            </div>
-
-            <div class="input-group mb-3">
-                <span class="input-group-text">CEP e Número</span>
-                <input name="cep" maxlength="9" required class="form-control"  id="cep" placeholder="00000-00">
-                <input type="text" name="numero" required class="form-control" id="numero" placeholder="00">
-            </div>
-
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" name="endereco" id="endereco" placeholder="Logradouro">
-                <input type="text" class="form-control" name="bairro" id="bairro" placeholder="Bairro">
-            </div>
-
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" name="municipio" id="cidade" placeholder="Cidade">
-                <input type="text" class="form-control" name="uf" id="uf" maxlength="2" placeholder="UF">
-            </div>
-
-            <div class="mb-3">
-              <label for="Complemento"> Complemento</label>
-              <input type="text" class="form-control" name="complemento" id="complemento">
-            </div>
-         </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-          <button type="button" class="btn btn-primary"  data-bs-dismiss="modal" id="submitCriar">Criar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-`
-
+//Limpa o formulário e seus dados
 function limparForm(){
   setTimeout(function() {
     let form = document.querySelectorAll("#formulario input")
@@ -119,6 +18,7 @@ function limparForm(){
   
 }
 
+//Carrega o modal e passa as funções necessárias para ele
 async function carregarModal(){
   
   document.getElementById('cep').addEventListener('input', MascararCEP);
@@ -136,60 +36,45 @@ async function carregarModal(){
 
 }
 
+//Tenta criar o usuário
 async function  CriarUsuario(){
 let valido = ValidarForm()
   if(valido){
 
     let id;
 
-    let request =  await fetch(linkBase+"/Endereco/Checar?cep="+document.getElementById('cep').value.replace(/-/g,'')+
+    let request =  await apiRequest("/Endereco/Checar?cep="+document.getElementById('cep').value.replace(/-/g,'')+
   "&numero="+document.getElementById("numero").value+"&complemento="+document.getElementById("complemento").value)
   
   
-    if(!request.ok){
+    if(!request){
       id = await CriarEndereco()
     }
-    else{
-      request = await request.json()
-    }
+   
      
-    let pessoa = await fetch(linkBase+"/Pessoa",{
-      method: "POST",
-      body:JSON.stringify({
+    let pessoa = await apiRequest("/Pessoa","POST",{
         id:0,
         nome: document.getElementById("nome").value,
         cpf:document.getElementById("cpf").value.replace(/-/g,'').replace(/\./g,""),
         rg: document.getElementById("rg").value.replace(/-/g,'').replace(/\./g,''),
         id_Endereco: (id) ? id : request
-      }),
-      headers:{
-        "Content-type":"application/json; charset=UTF-8",
-        "Authorization": "Bearer "+sessionStorage.getItem("Token")
-      }
-    })
+      })
+     
+ 
 
-    if(pessoa.ok){
+    if(pessoa){
       document.querySelector("#submitCriar").removeEventListener('click',CriarUsuario)
       await getAllPessoas()
     }
-    else if(pessoa.status == 403){
-      alert("Não autorizado")
-      return
-    }
-    else{
-      alert("Error: " + await pessoa.text())
-    }
-    
     
     
   }
 }
 
+//Tenta criar um nove endereço, caso dê certo, retorna o id do endereço
 async function CriarEndereco(){
   
-  const enderecoId = await fetch(linkBase+"/Endereco", {
-    method:"POST",
-    body: JSON.stringify({
+  const enderecoId = await apiRequest("/Endereco","POST", {
       id:0,
       cep: document.getElementById('cep').value.replace(/-/g,''),
       endereco: document.getElementById('endereco').value,
@@ -198,24 +83,16 @@ async function CriarEndereco(){
       complemento: document.getElementById('complemento').value,
       municipio: document.getElementById('cidade').value,
       uf: document.getElementById('uf').value
-    }),
-    headers: {
-        "Content-type":"application/json; charset=UTF-8",
-        "Authorization": "Bearer "+sessionStorage.getItem("Token")
-    }
-  })
+    })
 
-  if(enderecoId.ok)  {
-  let id = await enderecoId.json()
- 
-   return id['id']
+  if(enderecoId)  {
+  return enderecoId.id
   }
-  else{
-    alert(await enderecoId.text())
-  }
+
   
 }
 
+//Abre o modal, porém na opção de editar
 async function AbrirEditar(cpf) {
 
   document.getElementById('submitCriar').replaceWith(document.getElementById('submitCriar').cloneNode(true))
@@ -223,26 +100,10 @@ async function AbrirEditar(cpf) {
     EditarPessoa(cpf,dbEndereco['id'])
   })
 
-  let dbPessoa = await fetch(linkBase+'/Pessoa/cpf?cpf='+cpf,{
-    method:"GET",
-    headers:{
-      "Content-type":"application/json; charset=UTF-8",
-      "Authorization": "Bearer "+sessionStorage.getItem("Token")
-    }
-  })
+  let dbPessoa = await apiRequest('/Pessoa/cpf?cpf='+cpf)
+  let dbEndereco = await apiRequest("/Pessoa/Endereco/cpf?cpf="+dbPessoa['cpf'])
 
-  dbPessoa = await dbPessoa.json()
  
-
-  let dbEndereco = await fetch(linkBase+"/Pessoa/Endereco/cpf?cpf="+dbPessoa['cpf'],{
-    method:"GET",
-    headers:{
-      "Content-type":"application/json; charset=UTF-8",
-      "Authorization": "Bearer "+sessionStorage.getItem("Token")
-    }
-  })
-
-  dbEndereco = await dbEndereco.json()
   let form = document.querySelectorAll("#formulario input")
   form.forEach(item => {
     if(dbPessoa.hasOwnProperty(item.name)){
@@ -260,49 +121,43 @@ async function AbrirEditar(cpf) {
 
 
   document.querySelector("#cep").value = MascaradoCEP(document.querySelector("#cep").value)
+  document.querySelector("#rg").value = document.querySelector("#rg").value.
+  replace(/(\d{2})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2")
+  .replace(/(\d{3})(\d)/,"$1-$2")
 
   document.querySelector("#submitCriar").textContent = "Editar"
 
   
 }
 
+//Tenta editar a pessoa
 async function EditarPessoa(cpfPar,idEndereco) {
 
   
   if(ValidarForm){
     
-    const enderecoDB = await fetch(linkBase+"/Endereco/id?id="+idEndereco, {
-      method: "GET",
-      headers: {
-        "Content-type":"application/json; charset=UTF-8",
-        "Authorization": "Bearer "+sessionStorage.getItem("Token")
-      }
-    })
+        
+    const enderecoDB = await apiRequest("/Endereco/id?id="+idEndereco)
 
-    if(!enderecoDB.ok){
-      alert("error \n" + await enderecoDB.text)
+    if(!enderecoDB){
       return
     }
-    
-      const enderecoJson = await enderecoDB.json()
-      
+            
 
-      if(enderecoJson['cep'] != document.querySelector("#cep").value.replace(/-/g,'')){
-        idEndereco = await fetch(linkBase+"/Endereco/Checar?cep="+document.getElementById('cep').value.replace(/-/g,'')+
+      if(enderecoDB['cep'] != document.querySelector("#cep").value.replace(/-/g,'')){
+        idEndereco = await apiRequest("/Endereco/Checar?cep="+document.getElementById('cep').value.replace(/-/g,'')+
         "&numero="+document.getElementById("numero").value+"&complemento="+document.getElementById("complemento").value)
       
-        if(!idEndereco.ok){
+        if(!idEndereco){
           idEndereco = await CriarEndereco()
         }
-        else{
-          idEndereco = await idEndereco.json()
-        }
+        
       }
       else{
-        let request = await fetch(linkBase+"/Endereco?id="+idEndereco, {
-          method: "PUT",
-          body: JSON.stringify({
-            id:idEndereco,
+        
+        await apiRequest("/Endereco?id="+idEndereco, "PUT", {
+         
+            id:(idEndereco.id) ? idEndereco.id : idEndereco,
             cep: document.querySelector('#cep').value.replace(/-/g,''),
             endereco: document.querySelector('#endereco').value,
             numero: document.querySelector("#numero").value,
@@ -310,45 +165,27 @@ async function EditarPessoa(cpfPar,idEndereco) {
             complemento: document.querySelector("#complemento").value,
             municipio: document.querySelector("#cidade").value,
             uf: document.querySelector("#uf").value
-          }),
-          headers: {
-            "Content-type":"application/json; charset=UTF-8",
-            "Authorization": "Bearer "+sessionStorage.getItem("Token")
-          }
-        })
-
-        
+          })  
         
       }
 
-      console.log(idEndereco)
-
-      let request = await fetch(linkBase+"/Pessoa?cpf="+cpfPar, {
-      method:"PUT",
-      body:JSON.stringify({
+      //Atualiza a pessoa
+      let request = await apiRequest("/Pessoa?cpf="+cpfPar, "PUT", {
+      
         id:0,
         nome: document.querySelector("#nome").value,
         cpf: cpfPar,
         rg: document.querySelector("#rg").value.replace(/-/g,'').replace(/\./g,''),
         id_Endereco: idEndereco,
-      }),
-      headers: {
-        "Content-type":"application/json; charset=UTF-8",
-        "Authorization": "Bearer "+sessionStorage.getItem("Token")
-      }
-    })
+      })
 
-    if(request.ok){
+    if(request){
       document.querySelector("#submitCriar").removeEventListener('click',AbrirEditar)
       document.querySelector("#cpf").setAttribute('readonly',false)
       await getAllPessoas()
     }
-    else if(request.status == 403){
-      alert("Não autorizado")
-      return
-    }
     else{
-      alert("Erro: " + await request.text())
+      alert("Erro ao editar a pessoa")
     }
       
   }
@@ -356,10 +193,12 @@ async function EditarPessoa(cpfPar,idEndereco) {
  
 }
 
+//Verifica se o form está válido ou não
 function ValidarForm(){
 
 let errorMessage = "";
 
+//Verifica se todos os campos possuem valor
 let form = document.querySelectorAll("#formulario input")
 form.forEach(item => {
   if(item.value == "" && item.name != "Complemento") {
@@ -368,14 +207,35 @@ form.forEach(item => {
   }  
   })
 
+  //Validação do CPF
+  const cpfValue = document.getElementById("cpf").value.replace(/\D/g, '');
+  if (cpfValue.length !== 11) {
+    errorMessage += "O CPF deve conter 11 dígitos!\n";
+  }
+
+  // Validação do CEP
+  const cepValue = document.getElementById("cep").value.replace(/\D/g, '');
+  if (cepValue.length !== 8) {
+    errorMessage += "O CEP deve conter 8 dígitos!\n";
+  }
+
+
+  const rgValue = document.getElementById("rg").value.replace(/\D/g,'');
+  if(rgValue.length !== 9){
+    errorMessage += "O RG deve conter 8 dígitos!\n"
+  }
+
   if(errorMessage != ""){
     alert(errorMessage)
     return false
   }
 
+
 return true
 }
 
+
+//Mascara o CEP
 export const  MascararCEP = (event) => {
     
     let input = event.target
@@ -397,7 +257,7 @@ export const  MascararCEP = (event) => {
   }
 }
 
-
+//Mascara o CPF
 export const MascararCPF = (event) => {
   let input = event.target
 
@@ -411,6 +271,8 @@ export const MascararCPF = (event) => {
   input.value = input.value.replace(/(\d{3})(\d{1,2})$/,"$1-$2")
 }
 
+
+//Mascara o RG
 export const MascararRG = (event) => {
   let input = event.target
   if(!input.value) input.value = ""
@@ -434,26 +296,17 @@ function MascaradoCEP(value){
 
 export async  function getAllPessoas(){
 
-let request = await fetch(linkBase+"/Pessoa/pessoas", {
-  method:"GET",
-  headers: {
-    "Content-type":"application/json; charset=UTF-8",
-    "Authorization": "Bearer "+sessionStorage.getItem("Token")
-  }
-})
+let request = await apiRequest("/Pessoa/pessoas")
 
-if(request.ok){
+if(request){
   document.querySelector("#tabelaPessoas").innerHTML = ""
-  const pessoas = await request.json()
-
-  getPessoas(pessoas)
-}
-else{
-  document.querySelector("#tabelaPessoas").innerHTML = await request.text()
+  
+  getPessoas(request)
 }
 
 }
 
+//Função base para get pessoas, recebe o pessoas de suas variantes
 export function getPessoas(pessoas){
   
   if(Array.isArray(pessoas)){
@@ -491,38 +344,29 @@ export function getPessoas(pessoas){
 }
 
 
-
+//Como cpf é uma chave primária, deleta pelo cpf
 async function deletarPessoa(cpf){
 
-  let request = await fetch(linkBase+"/Pessoa?cpf="+cpf,{
-    method:"DELETE",
-    headers:{
-    "Content-type":"application/json; charset=UTF-8",
-    "Authorization": "Bearer "+sessionStorage.getItem("Token")
-    }
-  })
+  let request = await apiRequest("/Pessoa?cpf="+cpf, "DELETE")
 
-  if(request.ok){
+  if(request){
 
-    alert(await request.text())
+    alert(request)
     getAllPessoas()
   }
 
-  else if(request.status == 403){
-    alert("Não autorizado")
-  }
 
 }
-
+//Pré-carrega as funções para conseguir realizar a chamada delas
+//Define o html inicial da página
 export function CarregarPagina(){
   
+  //Funções globais
   window.deletarPessoa = deletarPessoa
   window.AbrirEditar = AbrirEditar
   window.limparForm = limparForm
   window.carregarModal = carregarModal
   
-
-
 
 
   document.querySelector(".corpo").innerHTML = navegacaoSite

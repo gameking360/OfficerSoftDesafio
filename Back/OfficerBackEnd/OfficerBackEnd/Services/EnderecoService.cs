@@ -31,6 +31,7 @@ namespace OfficerBackEnd.Services
 
         public async Task<Endereco> GetEnderecoByCEP(string cep, int numero)
         {
+            //Seleciona no banco de dados o primeiro endereco que cumpra os requisitos, se não lança uma exceção que gera um BadRequest
             var enderco = await _dataContext.Enderecos.FirstOrDefaultAsync(e => e.CEP == cep && e.Numero == numero ) ?? throw new Exception("Endereço não cadastrado");
 
 
@@ -39,6 +40,7 @@ namespace OfficerBackEnd.Services
 
         public async Task<Endereco> GetEnderecoById(int id)
         {
+            //Seleciona um endereço que tenha aquele ID, se não encontrar nenhum lança uma exceção que gera um BadRequest
             var endereco = await _dataContext.Enderecos.FindAsync(id);
             if (endereco == null) throw new Exception("Endereço não existe");
 
@@ -48,12 +50,14 @@ namespace OfficerBackEnd.Services
 
         public async Task<HashSet<EnderecoDTO>> GetEnderecos()
         {
-            var enderecos = _dataContext.Enderecos.ToHashSet();
-           var retorno =  enderecos.Select(e => EnderecoMapper.EnderecoToDTO(e)).ToHashSet();
+            //Gera um HashSet com todos os endereços 
+            var enderecos = await _dataContext.Enderecos.Select(
+                e => EnderecoMapper.EnderecoToDTO(e))
+                .ToListAsync();
 
-            if (retorno.Count == 0) throw new Exception("Nenhum endereço");
+            if (enderecos.Count == 0) throw new Exception("Nenhum endereço");
 
-            return retorno;
+            return enderecos.ToHashSet();
         }
 
         public async Task PostEndereco(Endereco endereco)

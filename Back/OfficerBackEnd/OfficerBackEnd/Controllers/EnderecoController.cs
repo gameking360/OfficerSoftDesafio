@@ -70,6 +70,7 @@ namespace OfficerBackEnd.Controllers
             }
         }
 
+        //Verifica se um endereço existe, caso não exista, no front ele é criado
         [HttpGet("Checar")]
         public async Task<ActionResult<int>> CheckEndereco(string cep, int numero, string? complemento)
         {
@@ -80,7 +81,7 @@ namespace OfficerBackEnd.Controllers
 
             }catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message +"\nEndereço criado.");
             }
         }
 

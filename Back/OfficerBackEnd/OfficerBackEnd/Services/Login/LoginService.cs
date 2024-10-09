@@ -24,13 +24,12 @@ namespace OfficerBackEnd.Services.Login
         }
 
 
+        //Verifica se o tempo atual é menor que o tempo do token, se for retorna true e indica que o token é válido
         public bool Validar(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var tokenS = handler.ReadJwtToken(token);
 
-            Console.WriteLine(tokenS.ValidTo);
-            Console.WriteLine(tokenS.ValidFrom);
 
             if(tokenS.ValidTo > DateTime.UtcNow)
             {
@@ -44,11 +43,15 @@ namespace OfficerBackEnd.Services.Login
             throw new NotImplementedException();
         }
 
+        //Retorna o usuário que tenha o mesmo nome que o passado
         private async Task<Usuario?> GetUsuario(LoginDTO dto)
         {
            return await _dataContext.Usuarios.FirstOrDefaultAsync(u => u.usuario == dto.usuario);
         }
 
+
+        //Utiliza uma classe externa (PasswordHasher) para verificar se a senha que recebeu, é a mesma da senha que está no banco
+        //Se for, gera um token
         public async Task<string> Login(LoginDTO dto)
         {
             Usuario? user = await GetUsuario(dto);
@@ -61,6 +64,11 @@ namespace OfficerBackEnd.Services.Login
 
         }
 
+        //Obtem a key que está no appseting
+        //Cria as credenciais de acordo com a key e o algoritmo de segurança
+        //Cria as clains que eu quero retornar
+        //Enfim cria o token
+        //Ao fim, escreve e retorna o token
         private string GerarToken(Usuario user)
         {
             SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_config["JWT:Key"]!));

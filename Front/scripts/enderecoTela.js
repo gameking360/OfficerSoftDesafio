@@ -1,4 +1,4 @@
-import { linkBase } from "./main.js"
+import { apiRequest } from "./api.js";
 
 const tabela = `
 <table class="table">
@@ -17,19 +17,13 @@ const tabela = `
   </table>`
 
 
+  //Retorna o endereço
 async function GetEnderecos(){
 
-   let enderecos = await fetch(linkBase+"/Endereco",{
-        method:"GET",
-        headers:{
-            "Content-type":"application/json; charset=UTF-8",
-            "Authorization": "Bearer "+sessionStorage.getItem("Token")
-        }
-    }) 
-    if(enderecos.ok){
-        enderecos = await enderecos.json()
-
-        enderecos.forEach(endereco => {
+   let enderecos = await apiRequest("/Endereco") 
+    if(enderecos){
+        
+            enderecos.forEach(endereco => {
             document.getElementById("tabelaEnderecos").innerHTML += `
              <th scope="row">${endereco['cep'].replace(/(\d{5})(\d)/,'$1-$2')}</th>
              <td>${endereco['endereco']}</th>
@@ -43,7 +37,7 @@ async function GetEnderecos(){
         });
     }
     else{
-  document.querySelector("#tabelaEnderecos").innerHTML = await enderecos.text()
+        document.querySelector("#tabelaEnderecos").innerHTML = "Não há endereços"
     }
       
 

@@ -14,6 +14,8 @@ namespace OfficerBackEnd.Services
         public PessoaService(DataContext dataContext) { _dataContext = dataContext; }
 
 
+        // Tenta criar pessoa
+        // Verifica se o endereço existe já e se não há ninguém com aquele cpf
         public async Task CreatePessoa(Pessoa entity)
         {
 
@@ -34,6 +36,8 @@ namespace OfficerBackEnd.Services
             return pessoa;
         }
 
+        //Tenta obter todas as pessoas
+        //Usando HashSet para testar se é mais performático
         public async Task<HashSet<PessoaGetDTO>> GetPessoasDto()
         {
             var pessoas = _dataContext.Pessoas.Select(s => PessoaMapper.PessoaToDTO(s, _dataContext)).ToHashSet();
@@ -51,8 +55,10 @@ namespace OfficerBackEnd.Services
             await _dataContext.SaveChangesAsync();
         }
 
+        //Tenta atualizar e atualiza os campos diferentes em pessoa
         public async Task UpdatePessoa(string cpf, Pessoa request)
         {
+            
             var entity = await _dataContext.Pessoas.FirstOrDefaultAsync(p => p.CPF == cpf) ?? throw new Exception("Erro, pessoa não encontrada");
             if (cpf != request.CPF) throw new Exception("Erro! Id's diferentes");
 
@@ -66,6 +72,7 @@ namespace OfficerBackEnd.Services
 
         public async Task<List<PessoaGetDTO>> GetPessoasByName(string nome)
         {
+            //Retorna as pessoas que tem certa combinação de caracteres no nome
             var pessoas =  await _dataContext.Pessoas.Where(p => p.Nome.ToLower().Contains(nome.ToLower())).Select(e => PessoaMapper.PessoaToDTO(e, _dataContext)).ToListAsync();
 
             return (pessoas.Count > 0) ? pessoas : throw new Exception("Pessoa não encontrada");
@@ -75,6 +82,7 @@ namespace OfficerBackEnd.Services
 
         public async Task<PessoaGetDTO> GetPessoaByCPF(string cpf)
         {
+            //Como cpf é um campo único, pode ser usado para buscar alguma pessoa
             var pessoa =  await _dataContext.Pessoas.FirstAsync(p => p.CPF == cpf);
             if (pessoa == null) throw new Exception("Pessoa não existente");
             return PessoaMapper.PessoaToDTO(pessoa,_dataContext);
@@ -88,6 +96,8 @@ namespace OfficerBackEnd.Services
 
         }
 
+
+        //Retorna o endereço da pessoa baseado no cpf
         public async Task<Endereco> GetPessoaEndereco(string cpf)
         {
             var pessoa = await _dataContext.Pessoas.FirstAsync(p => p.CPF == cpf);

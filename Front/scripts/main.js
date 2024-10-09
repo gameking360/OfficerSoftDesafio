@@ -1,4 +1,5 @@
 
+import { apiRequest } from './api.js'
 import * as criarUsuario from './Usuario.js'
 
 //Link base, exportando para usar sempre
@@ -31,15 +32,9 @@ async function PaginaLogin(){
     
   let tokenR = sessionStorage.getItem("Token")
   if(tokenR){
-    let existe = await fetch(linkBase+"/Login/Validar", {
-      method: "POST",
-      body: JSON.stringify(tokenR),
-        headers:{
-        "Content-type":"application/json; charset=UTF-8"
-      }
-    })
+    let existe = await apiRequest("/Login/Validar","POST", tokenR)
 
-    existe = await existe.json()
+ 
    
     if(existe){
        criarUsuario.CarregarPagina()
@@ -90,7 +85,6 @@ async function Logar(){
 
    
 }
-
 
 
 

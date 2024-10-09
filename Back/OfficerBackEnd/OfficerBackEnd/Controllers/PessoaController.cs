@@ -19,7 +19,7 @@ namespace OfficerBackEnd.Controllers
         }
 
 
-
+        //Usuários logados podem receber todas as pessoas
         [HttpGet("pessoas")]
         [Authorize(Roles ="admin,user")]
 
@@ -36,6 +36,7 @@ namespace OfficerBackEnd.Controllers
             }
         }
 
+        //Usuários logados podem realizar a pesquisa por nome
         [HttpGet("{nome}")]
         [Authorize(Roles = "admin,user")]
         public async Task<ActionResult<List<PessoaGetDTO>>> GetPessoasByName(string nome)
@@ -52,6 +53,7 @@ namespace OfficerBackEnd.Controllers
             }
         }
 
+        //Usuários logados podem realizar a pesquisa por cpf
         [HttpGet("cpf")]
         [Authorize(Roles ="admin,user")]
         public async Task<ActionResult<PessoaGetDTO>> GetPessoaByCPF(string cpf)
@@ -82,7 +84,7 @@ namespace OfficerBackEnd.Controllers
             }
         }
 
-        
+        //Apenas o cargo admin pode criar pessoas, se não for recebe um 403 (acesso negado)
         [HttpPost]
         [Authorize(Roles ="admin")]
         public async Task<IActionResult> PostPessoa(Pessoa p)
@@ -101,6 +103,7 @@ namespace OfficerBackEnd.Controllers
 
         }
 
+        //Apenas o cargo admin pode deletar pessoas, se não for recebe um 403 (acesso negado)
         [HttpDelete]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeletePessoa(string cpf)
@@ -118,6 +121,7 @@ namespace OfficerBackEnd.Controllers
         }
 
 
+        //Apenas o cargo admin pode editar pessoas, se não for recebe um 403 (acesso negado)
         [HttpPut]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> PutPessoa(string cpf, Pessoa request)
