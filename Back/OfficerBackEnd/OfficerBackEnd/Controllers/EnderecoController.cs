@@ -23,7 +23,7 @@ namespace OfficerBackEnd.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "admin,usuario")]
+        [Authorize(Roles = "admin,user")]
         public async Task<ActionResult<EnderecoDTO>> GetAllEnderecos()
         {
             try
@@ -55,7 +55,7 @@ namespace OfficerBackEnd.Controllers
         }  
 
         [HttpPost]
-        [Authorize(Roles ="admin,usuario")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<Endereco>> PostEndereco(Endereco endereco)
         {
             try

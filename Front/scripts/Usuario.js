@@ -124,6 +124,10 @@ async function carregarModal(){
   document.getElementById('cep').addEventListener('input', MascararCEP);
   document.getElementById('cpf').addEventListener('input',MascararCPF)
   document.getElementById('rg').addEventListener('input',MascararRG)
+  document.getElementById('numero').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g,'')
+    
+  })
 
   document.querySelector("#cpf").removeAttribute('readonly')
 
@@ -136,20 +140,20 @@ async function  CriarUsuario(){
 let valido = ValidarForm()
   if(valido){
 
-    
-    let request = await fetch(linkBase+"/Endereco/Checar?cep="+document.getElementById('cep').value.replace(/-/g,'')+
-  "&numero="+document.getElementById("numero").value+"&complemento="+document.getElementById("complemento").value)
-  let id
+    let id;
 
+    let request =  await fetch(linkBase+"/Endereco/Checar?cep="+document.getElementById('cep').value.replace(/-/g,'')+
+  "&numero="+document.getElementById("numero").value+"&complemento="+document.getElementById("complemento").value)
+  
+  
     if(!request.ok){
       id = await CriarEndereco()
-    }else{
+    }
+    else{
       request = await request.json()
     }
-
-
-    
-    await fetch(linkBase+"/Pessoa",{
+     
+    let pessoa = await fetch(linkBase+"/Pessoa",{
       method: "POST",
       body:JSON.stringify({
         id:0,
@@ -163,14 +167,26 @@ let valido = ValidarForm()
         "Authorization": "Bearer "+sessionStorage.getItem("Token")
       }
     })
+
+    if(pessoa.ok){
+      document.querySelector("#submitCriar").removeEventListener('click',CriarUsuario)
+      await getAllPessoas()
+    }
+    else if(pessoa.status == 403){
+      alert("Não autorizado")
+      return
+    }
+    else{
+      alert("Error: " + await pessoa.text())
+    }
     
     
-    document.querySelector("#submitCriar").removeEventListener('click',CriarUsuario)
-    await getAllPessoas()
+    
   }
 }
 
 async function CriarEndereco(){
+  
   const enderecoId = await fetch(linkBase+"/Endereco", {
     method:"POST",
     body: JSON.stringify({
@@ -278,6 +294,9 @@ async function EditarPessoa(cpfPar,idEndereco) {
         if(!idEndereco.ok){
           idEndereco = await CriarEndereco()
         }
+        else{
+          idEndereco = await idEndereco.json()
+        }
       }
       else{
         let request = await fetch(linkBase+"/Endereco?id="+idEndereco, {
@@ -302,7 +321,8 @@ async function EditarPessoa(cpfPar,idEndereco) {
         
       }
 
-    
+      console.log(idEndereco)
+
       let request = await fetch(linkBase+"/Pessoa?cpf="+cpfPar, {
       method:"PUT",
       body:JSON.stringify({
@@ -310,19 +330,30 @@ async function EditarPessoa(cpfPar,idEndereco) {
         nome: document.querySelector("#nome").value,
         cpf: cpfPar,
         rg: document.querySelector("#rg").value.replace(/-/g,'').replace(/\./g,''),
-        idEndereco: idEndereco,
+        id_Endereco: idEndereco,
       }),
       headers: {
         "Content-type":"application/json; charset=UTF-8",
         "Authorization": "Bearer "+sessionStorage.getItem("Token")
       }
     })
+
+    if(request.ok){
+      document.querySelector("#submitCriar").removeEventListener('click',AbrirEditar)
+      document.querySelector("#cpf").setAttribute('readonly',false)
+      await getAllPessoas()
+    }
+    else if(request.status == 403){
+      alert("Não autorizado")
+      return
+    }
+    else{
+      alert("Erro: " + await request.text())
+    }
+      
   }
 
-  document.querySelector("#submitCriar").removeEventListener('click',AbrirEditar)
-  document.querySelector("#cpf").setAttribute('readonly',false)
-  await getAllPessoas()
-
+ 
 }
 
 function ValidarForm(){
@@ -475,6 +506,10 @@ async function deletarPessoa(cpf){
 
     alert(await request.text())
     getAllPessoas()
+  }
+
+  else if(request.status == 403){
+    alert("Não autorizado")
   }
 
 }

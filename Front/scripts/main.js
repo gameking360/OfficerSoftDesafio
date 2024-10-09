@@ -1,8 +1,10 @@
 
 import * as criarUsuario from './Usuario.js'
 
+//Link base, exportando para usar sempre
 export const linkBase = "https://localhost:7202/api"
 
+//Html da página de login
 const pagLogin = `<div class="position-absolute top-50 start-50 translate-middle">
     <form >
         <div class="row mb-3">
@@ -59,7 +61,8 @@ async function PaginaLogin(){
 
     
 }
-
+//Tenta logar, caso dê algum erro, retorna um erro no alert
+//Se bem sucedido, em Usuario está o html novo da página
 async function Logar(){
     let usuarioValue = document.querySelector("#inputUser").value
     let senhaValue = document.querySelector("#inputSenha").value

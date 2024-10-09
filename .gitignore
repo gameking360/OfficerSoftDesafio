@@ -1,10 +1,13 @@
+#Pasta .vs presente no back-end
 .vs/
 
-
+#Arquivo http presente no back-end
 *.http
 
 bin/
 
+#Arquivos json do back-end
 *.json
 
+#Pasta obj do back-end
 obj/

@@ -14,7 +14,6 @@ id_Endereco integer,
 cpf varchar (11) unique,
 nome varchar(50),
 RG varchar(15),
-foreign key(id_Usuario) references Usuario(id),
 foreign key(id_Endereco) references Endereco(id));
 
 create table Endereco(
@@ -32,6 +31,12 @@ drop table Endereo
 drop database OfficerSoft
 
 select * from Pessoa;
+select * from Usuario;
+select * from Endereco;
 
 delete from Endereco;
 delete from Pessoa;
+delete from Usuario;
+
+delete from Usuario where id = 3;
+

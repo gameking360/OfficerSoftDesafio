@@ -21,6 +21,7 @@ namespace OfficerBackEnd.Controllers
 
 
         [HttpGet("pessoas")]
+        [Authorize(Roles ="admin,user")]
 
         public async Task<ActionResult<PessoaGetDTO>> GetPessoasDto()
         {
@@ -36,7 +37,7 @@ namespace OfficerBackEnd.Controllers
         }
 
         [HttpGet("{nome}")]
-        [Authorize(Roles = "admin,usuario")]
+        [Authorize(Roles = "admin,user")]
         public async Task<ActionResult<List<PessoaGetDTO>>> GetPessoasByName(string nome)
         {
             try
@@ -52,6 +53,7 @@ namespace OfficerBackEnd.Controllers
         }
 
         [HttpGet("cpf")]
+        [Authorize(Roles ="admin,user")]
         public async Task<ActionResult<PessoaGetDTO>> GetPessoaByCPF(string cpf)
         {
             try
